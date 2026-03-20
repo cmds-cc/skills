@@ -1,0 +1,21 @@
+{
+  "name": "cisco-uc-engineer",
+  "version": "1.0.0",
+  "description": "Cisco Unified Communications engineer skill for AI agents. Orchestrates cisco-axl, cisco-dime, cisco-ise, cisco-perfmon, and cisco-risport for UC troubleshooting, provisioning, and monitoring.",
+  "keywords": [
+    "cisco",
+    "cucm",
+    "ise",
+    "unified-communications",
+    "skills",
+    "ai",
+    "troubleshooting"
+  ],
+  "author": "sieteunoseis (jeremy.worden@gmail.com)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sieteunoseis/cisco-uc-engineer.git"
+  },
+  "funding": "https://buymeacoffee.com/automatebldrs"
+}
