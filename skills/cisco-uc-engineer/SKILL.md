@@ -145,17 +145,37 @@ cisco-dime select "Packet Capture Logs" --last 1h
 **Tools needed:** cisco-perfmon, cisco-risport, cisco-dime
 
 ```bash
-# 1. Collect key performance counters
+# 1. Quick snapshot of key counters
 cisco-perfmon collect "Cisco CallManager" --counter "RegisteredHardwarePhones,CallsActive,CallsAttempted,CallsCompleted"
 cisco-perfmon collect "Processor" --counter "% CPU Time"
 cisco-perfmon collect "Memory" --counter "% Memory Used"
 
-# 2. Get device summary
+# 2. Live monitoring with sparklines (watch for trends)
+cisco-perfmon watch "Cisco CallManager" --counter "CallsActive,RegisteredHardwarePhones" --interval 10
+
+# 3. Cluster registration summary
 cisco-risport summary
 
-# 3. Check for errors in logs
-cisco-dime select "Cisco CallManager" --last 1h
+# 4. Check for errors in logs
 cisco-dime select syslog --last 1h
+```
+
+**What to look for:**
+- CPU consistently above 80% — possible resource issue
+- RegisteredHardwarePhones dropping — phones losing registration
+- CallsActive spiking — possible call loop or toll fraud
+- Sparklines show trends — is the value stable, climbing, or oscillating?
+
+### Call Load Testing / Monitoring
+
+**Tools needed:** cisco-perfmon
+
+```bash
+# Monitor during a test window with sparklines
+cisco-perfmon watch "Cisco CallManager" --counter "CallsActive,CallsAttempted,CallsCompleted,CallsInProgress" --interval 5 --duration 300
+
+# Monitor trunk utilization
+cisco-perfmon watch "Cisco SIP" --counter "CallsActive,CallsAttempted,CallsCompleted" --interval 10
 ```
 
 ### Syslog Error → Bug Search
@@ -288,3 +308,6 @@ Start broad, narrow down. Don't pull traces until you've checked the basics.
 - All tools support `--cluster <name>` to target a specific cluster — useful when the user has multiple CUCM environments.
 - All CUCM tools (axl, dime, perfmon, risport) share the same CUCM host.
 - When pulling logs with cisco-dime, note that timestamps from CUCM are in the server's timezone. Use `--timezone` to convert.
+- Use `cisco-perfmon watch` for live monitoring with sparklines — great for observing trends during testing or incidents.
+- Use `cisco-dime analyze sip-ladder` to render SIP call flow diagrams from SDL trace files.
+- All tools have a `doctor` command for health checks — run `cisco-<tool> doctor` to verify connectivity.
