@@ -40,18 +40,33 @@ Adapt workflows to use only the tools that are installed. A partial toolkit is s
 
 Each tool has its own skill with detailed command reference. Use those skills for tool-specific questions. This skill is for workflows that span multiple tools.
 
-## Cluster Configuration
+## Cluster Alignment
 
-All tools share the same cluster pattern. If the user has configured one tool, the same CUCM host likely works for others:
+Each tool has its own config (`~/.cisco-axl/config.json`, `~/.cisco-dime/config.json`, etc.) with its own `activeCluster`. **Before any multi-tool workflow, verify all tools are pointing at the same CUCM host.**
 
 ```bash
-# Check existing configs
-cisco-axl config list
-cisco-dime config list
-
-# If one is configured but another isn't, suggest reusing the same credentials
-# Note: cisco-axl requires --cucm-version, others don't
+# Check active cluster for each installed tool
+cisco-axl config show 2>/dev/null
+cisco-dime config show 2>/dev/null
+cisco-perfmon config show 2>/dev/null
+cisco-risport config show 2>/dev/null
 ```
+
+**What to check:**
+- Do all tools have the same host configured?
+- Are the active clusters aligned (e.g., all pointing at "staging", not one at "staging" and another at "prod")?
+
+**If misaligned:**
+- Use `--cluster <name>` on each command to explicitly target the same cluster
+- Or switch the active cluster: `cisco-dime config use staging`
+- If a tool is missing the cluster entirely, add it:
+  ```bash
+  cisco-dime config add staging --host 10.0.0.1 --username admin --password secret --insecure
+  ```
+
+**Best practice:** When the user says "check phone X", always confirm which cluster/environment before running commands across multiple tools. Use the explicit `--cluster` flag in multi-tool workflows rather than relying on each tool's active cluster.
+
+> Note: cisco-axl requires `--cucm-version` when adding a cluster. The other tools do not.
 
 ## Troubleshooting Workflows
 
