@@ -1,0 +1,75 @@
+name: Sync Skills
+
+on:
+  schedule:
+    - cron: "0 6 * * 1" # Weekly on Monday at 6am UTC
+  workflow_dispatch: # Manual trigger
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Sync skills from source repos
+        run: |
+          declare -A SKILLS=(
+            ["cisco-axl-cli"]="sieteunoseis/cisco-axl/main/skills/cisco-axl-cli/SKILL.md"
+            ["cisco-dime-cli"]="sieteunoseis/cisco-dime/main/skills/cisco-dime-cli/SKILL.md"
+            ["cisco-ise-cli"]="sieteunoseis/cisco-ise/main/skills/cisco-ise-cli/SKILL.md"
+            ["cisco-perfmon-cli"]="sieteunoseis/cisco-perfmon/main/skills/cisco-perfmon-cli/SKILL.md"
+            ["cisco-risport-cli"]="sieteunoseis/cisco-risport/main/skills/cisco-risport-cli/SKILL.md"
+            ["cisco-support-cli"]="sieteunoseis/cisco-support/main/skills/cisco-support-cli/SKILL.md"
+            ["cisco-ucce-cli"]="sieteunoseis/cisco-ucce/main/skills/cisco-ucce-cli/SKILL.md"
+            ["cisco-yang-cli"]="sieteunoseis/cisco-yang/main/skills/cisco-yang-cli/SKILL.md"
+            ["ss-cli"]="sieteunoseis/ss-cli/main/skills/ss-cli/SKILL.md"
+            ["audiocodes-cli"]="sieteunoseis/audiocodes-cli/main/skills/audiocodes-cli/SKILL.md"
+          )
+
+          CHANGED=0
+          for SKILL in "${!SKILLS[@]}"; do
+            SOURCE="${SKILLS[$SKILL]}"
+            URL="https://raw.githubusercontent.com/${SOURCE}"
+            DEST="skills/${SKILL}/SKILL.md"
+
+            echo "Syncing ${SKILL} from ${SOURCE}..."
+            mkdir -p "skills/${SKILL}"
+
+            HTTP_CODE=$(curl -s -o /tmp/skill.md -w "%{http_code}" "${URL}")
+            if [ "$HTTP_CODE" = "200" ]; then
+              if ! diff -q /tmp/skill.md "${DEST}" > /dev/null 2>&1; then
+                cp /tmp/skill.md "${DEST}"
+                echo "  Updated ${SKILL}"
+                CHANGED=$((CHANGED + 1))
+              else
+                echo "  No changes"
+              fi
+            else
+              echo "  Skipped (HTTP ${HTTP_CODE})"
+            fi
+          done
+
+          echo "CHANGED=${CHANGED}" >> $GITHUB_ENV
+          echo "${CHANGED} skill(s) updated"
+
+      - name: Create PR if changes found
+        if: env.CHANGED != '0'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          BRANCH="sync-skills-$(date +%Y%m%d)"
+          git checkout -b "${BRANCH}"
+          git add skills/
+          git commit -m "chore: sync skills from source repos"
+          git push origin "${BRANCH}"
+          gh pr create \
+            --title "Sync skills from source repos" \
+            --body "Automated weekly sync of SKILL.md files from source repositories." \
+            --base master
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
