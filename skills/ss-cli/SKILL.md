@@ -19,12 +19,12 @@ Always validate the token first:
 ss-cli token-status --json
 ```
 
-| Field | Description |
-|---|---|
-| `valid` | `true` if token is usable |
-| `source` | `"file"` (from `ss-cli login`), `"session"` (SS_TOKEN env var), or `"none"` |
-| `minutesLeft` | Remaining minutes (file-based only) |
-| `expiresAt` | ISO timestamp of expiry (file-based only) |
+| Field         | Description                                                                 |
+| ------------- | --------------------------------------------------------------------------- |
+| `valid`       | `true` if token is usable                                                   |
+| `source`      | `"file"` (from `ss-cli login`), `"session"` (SS_TOKEN env var), or `"none"` |
+| `minutesLeft` | Remaining minutes (file-based only)                                         |
+| `expiresAt`   | ISO timestamp of expiry (file-based only)                                   |
 
 If `valid` is `false`, stop and tell the user: **"Secret Server token is expired or missing. Please run: `ss-cli login`"**
 
@@ -150,8 +150,9 @@ Updates a secret field, then re-syncs downstream env files.
 
 ```bash
 # Step 1: Update the secret
-ss-cli update <id> --field password=newvalue
-ss-cli update <id> --field password=newvalue --field notes="Rotated 2026-03-19"
+# Never pass the new value directly on the command line — use a placeholder or prompt
+ss-cli update <id> --field password=<new-value>
+ss-cli update <id> --field password=<new-value> --field notes="Rotated 2026-03-19"
 
 # Step 2: Verify
 ss-cli get <id> --format json
@@ -174,6 +175,7 @@ ss-cli audit --verify          # check HMAC chain integrity
 
 ## Security Notes
 
+- Never pass credential values directly on the command line (e.g., `--field password=<value>`). Use a shell variable or prompt instead — never hardcode credentials.
 - Never store secret values in files when avoidable. Use `ss-cli run` (subprocess injection) or `ss-cli resolve` (stdout-only).
 - Session tokens (`source: "session"`) are in-memory only and cannot be shared across terminals.
 - For cross-process agent access, use file-based tokens (`ss-cli login`).

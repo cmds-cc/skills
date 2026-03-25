@@ -9,11 +9,19 @@ CLI and SDK for IOS-XE devices via RESTCONF (HTTP/JSON). Focused on voice troubl
 
 ## Setup
 
-The user must first configure a device:
+The user must first configure a device (interactive prompt for password — never pass credentials on the command line):
 
 ```bash
-cisco-yang config add <name> --host <host> --username <user> --password <pass> [--insecure]
+cisco-yang config add <name> --host <host> --username <user> [--insecure]
+# You will be prompted securely for the password
 cisco-yang doctor   # verify connectivity
+```
+
+Or use environment variables (set via your shell profile, a `.env` file, or a secrets manager — never hardcode credentials):
+
+```bash
+# These should be set securely, e.g. via dotenv, vault, or shell profile
+# YANG_HOST, YANG_USERNAME, YANG_PASSWORD
 ```
 
 ## Common Operations

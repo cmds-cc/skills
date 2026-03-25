@@ -9,14 +9,17 @@ CLI for Cisco ISE (Identity Services Engine) 3.1+ targeting day-to-day operation
 
 ## Setup
 
-Configure a cluster (one-time):
+Configure a cluster (one-time, interactive prompt for password — never pass credentials on the command line):
 
 ```bash
-cisco-ise config add <name> --host <host> --username <user> --password '<ss:ID:password>' --insecure
+cisco-ise config add <name> --host <host> --username <user> --insecure
+# You will be prompted securely for the password
+# Or use a Secret Server reference (never hardcode credentials):
+#   cisco-ise config add <name> --host <host> --username <user> --password '<ss:ID:password>' --insecure
 cisco-ise config test
 ```
 
-Or use environment variables:
+Or use environment variables (set via your shell profile, a `.env` file, or a secrets manager — never hardcode credentials):
 
 ```bash
 export CISCO_ISE_HOST=<host>
@@ -28,19 +31,19 @@ Secret Server references are supported: `<ss:ID:field>` (requires ss-cli).
 
 ## Command Groups
 
-| Command | Description |
-|---------|-------------|
-| `config` | Manage ISE cluster configurations (add/use/list/show/remove/test/update/clear-cache) |
-| `endpoint` | Manage endpoints (list/search/add/update/delete, CSV bulk) |
-| `guest` | Manage guest users (list/search/create/extend/suspend/reinstate/delete/portals) |
-| `network-device` | Manage NADs (list/search/get/add/update/delete) |
-| `session` | Active sessions (list/search/disconnect/reauth) |
-| `radius` | RADIUS monitoring (failures with human-readable reasons, live polling) |
-| `tacacs` | TACACS+ monitoring (failures/live/command-sets/profiles) |
-| `identity-group` | List identity groups (--type endpoint/user) |
-| `auth-profile` | List/get authorization profiles |
-| `trustsec` | TrustSec SGTs and SGACLs (read-only) |
-| `deployment` | ISE deployment nodes and status (read-only) |
+| Command          | Description                                                                          |
+| ---------------- | ------------------------------------------------------------------------------------ |
+| `config`         | Manage ISE cluster configurations (add/use/list/show/remove/test/update/clear-cache) |
+| `endpoint`       | Manage endpoints (list/search/add/update/delete, CSV bulk)                           |
+| `guest`          | Manage guest users (list/search/create/extend/suspend/reinstate/delete/portals)      |
+| `network-device` | Manage NADs (list/search/get/add/update/delete)                                      |
+| `session`        | Active sessions (list/search/disconnect/reauth)                                      |
+| `radius`         | RADIUS monitoring (failures with human-readable reasons, live polling)               |
+| `tacacs`         | TACACS+ monitoring (failures/live/command-sets/profiles)                             |
+| `identity-group` | List identity groups (--type endpoint/user)                                          |
+| `auth-profile`   | List/get authorization profiles                                                      |
+| `trustsec`       | TrustSec SGTs and SGACLs (read-only)                                                 |
+| `deployment`     | ISE deployment nodes and status (read-only)                                          |
 
 ## Common Workflows
 
@@ -92,6 +95,7 @@ cisco-ise session disconnect E2:7C:7E:5B:F0:E0 --insecure
 ```bash
 cisco-ise network-device list --insecure
 cisco-ise network-device add --name "switch01" --ip 10.0.0.1 --radius-secret '<ss:ID:radius-secret>' --insecure
+# Use a Secret Server reference for --radius-secret — never hardcode credentials
 ```
 
 ### View deployment info
@@ -104,6 +108,7 @@ cisco-ise deployment status --insecure
 ## MAC Address Formats
 
 Any common format is accepted and automatically normalized:
+
 - `AA:BB:CC:DD:EE:FF` (colon-separated)
 - `AA-BB-CC-DD-EE-FF` (dash-separated)
 - `AABB.CCDD.EEFF` (Cisco dot notation)
@@ -153,65 +158,79 @@ This returns the full auth history with: pass/fail, matched policy rules, failur
 Based on the troubleshoot output, run follow-up commands:
 
 **If auth is failing — check the user:**
+
 ```bash
 cisco-ise internal-user get <username> --format json
 ```
+
 - Is `enabled` false? → `cisco-ise internal-user update <user> --enable`
-- Is the user missing? → `cisco-ise internal-user add --user-name <user> --user-password <pass> --group <group>`
+- Is the user missing? → `cisco-ise internal-user add --user-name <user> --group <group>` (you will be prompted securely for the password)
 
 **If NAD not found (11007) — check network device:**
+
 ```bash
 cisco-ise network-device list --format json
 ```
-- Is the device missing? → `cisco-ise network-device add --name <name> --ip <ip> --radius-secret <secret>`
+
+- Is the device missing? → `cisco-ise network-device add --name <name> --ip <ip>` (you will be prompted securely for the RADIUS secret, or use a Secret Server reference)
 
 **If shared secret mismatch (11036, 22040) — verify NAD config:**
+
 ```bash
 cisco-ise network-device get <device-name> --format json
 ```
+
 - Check `authenticationSettings.radiusSharedSecret` matches the device config.
 
 **If CoA failing (5417, 11213) — check CoA port:**
+
 ```bash
 cisco-ise network-device get <device-name> --format json
 ```
+
 - Check `coaPort`. Cisco uses 1700, RFC standard is 3799. UniFi uses 3799.
 
 **If certificate rejected (12520) — check deployment:**
+
 ```bash
 cisco-ise deployment nodes --format json
 ```
+
 - Verify EAP certificate. Client must trust the signing CA.
 
 **If authorization denied (15039) — check policy:**
+
 ```bash
 cisco-ise auth-profile list --format json
 cisco-ise identity-group list --format json
 ```
+
 - User may not match any authorization rule. Check group membership.
 
 ### Step 4: Verify the fix
 
 After making changes, ask the user to reconnect, then re-run:
+
 ```bash
 cisco-ise radius troubleshoot --mac <mac> --last 30m
 ```
+
 Confirm the latest auth shows PASS.
 
 ### Step 5: Common failure code reference
 
-| Code | Issue | Quick Fix |
-|------|-------|-----------|
-| 5411 | EAP timeout — no client response | Check supplicant config, certificate trust |
-| 5417 | CoA failed | Check NAD CoA port and shared secret |
-| 11007 | NAD not found | Add NAD: `cisco-ise network-device add` |
-| 11036 | Invalid Message-Authenticator | Shared secret mismatch — update NAD |
-| 12520 | Client rejected ISE cert | Install CA cert on client or fix ISE EAP cert |
-| 15039 | Rejected by authz profile | Add authorization rule for this user/group |
-| 22040 | Wrong password or shared secret | Reset password or fix shared secret |
-| 22056 | User not found | Add user or check auth policy identity store |
-| 22061 | User disabled | `cisco-ise internal-user update <user> --enable` |
-| 24408 | AD auth failed — wrong password | Check AD credentials, also check shared secret if PAP |
+| Code  | Issue                            | Quick Fix                                             |
+| ----- | -------------------------------- | ----------------------------------------------------- |
+| 5411  | EAP timeout — no client response | Check supplicant config, certificate trust            |
+| 5417  | CoA failed                       | Check NAD CoA port and shared secret                  |
+| 11007 | NAD not found                    | Add NAD: `cisco-ise network-device add`               |
+| 11036 | Invalid Message-Authenticator    | Shared secret mismatch — update NAD                   |
+| 12520 | Client rejected ISE cert         | Install CA cert on client or fix ISE EAP cert         |
+| 15039 | Rejected by authz profile        | Add authorization rule for this user/group            |
+| 22040 | Wrong password or shared secret  | Reset password or fix shared secret                   |
+| 22056 | User not found                   | Add user or check auth policy identity store          |
+| 22061 | User disabled                    | `cisco-ise internal-user update <user> --enable`      |
+| 24408 | AD auth failed — wrong password  | Check AD credentials, also check shared secret if PAP |
 
 The CLI has 311 ISE failure codes mapped in `cli/utils/failure-reasons.js` with causes and remediation. The `radius troubleshoot` command outputs these automatically.
 
@@ -220,8 +239,10 @@ The CLI has 311 ISE failure codes mapped in `cli/utils/failure-reasons.js` with 
 ```bash
 cisco-ise internal-user list
 cisco-ise internal-user get <name>
-cisco-ise internal-user add --user-name <name> --user-password <pass> --group <group>
-cisco-ise internal-user update <name> --enable|--disable|--group <group>|--user-password <pass>
+cisco-ise internal-user add --user-name <name> --group <group>
+# You will be prompted securely for the password — never pass credentials on the command line
+cisco-ise internal-user update <name> --enable|--disable|--group <group>
+# Use --user-password only with a Secret Server reference: --user-password '<ss:ID:password>'
 cisco-ise internal-user delete <name>
 ```
 
@@ -234,6 +255,7 @@ When giving AI agents access to the cisco-ise CLI, use these layers of protectio
 Create a dedicated ISE admin account with **ERS Operator** (read-only) instead of **ERS Admin** (read-write). The ISE server itself rejects all write API calls regardless of what the CLI or agent does.
 
 In ISE admin GUI:
+
 1. Administration > System > Admin Access > Administrators > Admin Users
 2. Create a new admin (e.g., `cli-reader`)
 3. Assign to **ERS Operator** group (read-only ERS access)
@@ -246,6 +268,7 @@ cisco-ise config add prod --host <host> --username cli-reader --password '<ss:ID
 This is the only protection that cannot be bypassed by any client-side mechanism. The ISE server enforces the restriction.
 
 For write operations, use a separate cluster config with ERS Admin credentials that only humans access:
+
 ```bash
 cisco-ise config add prod-admin --host <host> --username cli-admin --password '<ss:ID:password>' --read-only --insecure
 ```
@@ -263,6 +286,7 @@ Write operations require typing a random 8-character hex string in an interactiv
 ### Layer 3: Separate Credentials
 
 Keep admin/write credentials in Secret Server, not in the config file:
+
 ```bash
 cisco-ise config add prod --host <host> --username <user> --password '<ss:ID:password>' --insecure
 ```
@@ -271,11 +295,11 @@ The agent never sees the actual password — it's resolved at runtime from Secre
 
 ### Recommended Setup for Agent Access
 
-| Account | ISE Role | CLI Config | Used By |
-|---------|----------|------------|---------|
-| `cli-reader` | ERS Operator + MNT Admin | `prod` cluster | AI agents (read + troubleshoot) |
-| `cli-admin` | ERS Admin | `prod-admin` cluster, `--read-only` | Humans only (writes need TTY confirmation) |
-| `sponsor` | Sponsor (internal user) | `--sponsor-user` in config | Guest management |
+| Account      | ISE Role                 | CLI Config                          | Used By                                    |
+| ------------ | ------------------------ | ----------------------------------- | ------------------------------------------ |
+| `cli-reader` | ERS Operator + MNT Admin | `prod` cluster                      | AI agents (read + troubleshoot)            |
+| `cli-admin`  | ERS Admin                | `prod-admin` cluster, `--read-only` | Humans only (writes need TTY confirmation) |
+| `sponsor`    | Sponsor (internal user)  | `--sponsor-user` in config          | Guest management                           |
 
 ### Data Exposure by Command
 
@@ -283,56 +307,59 @@ Before granting agent access, understand what data each command exposes. Use thi
 
 **Low sensitivity — safe for most agents:**
 
-| Command | Data Exposed |
-|---------|-------------|
-| `deployment nodes` | ISE hostnames, roles, services |
-| `deployment status` | Node status |
-| `identity-group list` | Group names and descriptions |
-| `auth-profile list` | Authorization profile names |
-| `trustsec sgt list` | SGT names and descriptions |
-| `trustsec sgacl list` | SGACL names |
-| `tacacs command-sets` | TACACS command set names |
-| `tacacs profiles` | TACACS profile names |
+| Command               | Data Exposed                   |
+| --------------------- | ------------------------------ |
+| `deployment nodes`    | ISE hostnames, roles, services |
+| `deployment status`   | Node status                    |
+| `identity-group list` | Group names and descriptions   |
+| `auth-profile list`   | Authorization profile names    |
+| `trustsec sgt list`   | SGT names and descriptions     |
+| `trustsec sgacl list` | SGACL names                    |
+| `tacacs command-sets` | TACACS command set names       |
+| `tacacs profiles`     | TACACS profile names           |
 
 **Medium sensitivity — contains user/device identifiers:**
 
-| Command | Data Exposed |
-|---------|-------------|
-| `endpoint list/search` | MAC addresses, endpoint group membership |
-| `session list/search` | Active users, MAC addresses, NAS IPs, ISE server |
-| `radius auth-log` | Auth history: usernames, MACs, pass/fail, timestamps, policy matches |
-| `radius troubleshoot` | Full auth detail: all of auth-log plus protocol, TLS version, VLAN, identity store |
-| `radius failures` | Failed auth attempts with usernames and failure reasons |
-| `internal-user list` | Usernames, descriptions, user IDs |
-| `guest list` | Guest usernames and IDs |
+| Command                | Data Exposed                                                                       |
+| ---------------------- | ---------------------------------------------------------------------------------- |
+| `endpoint list/search` | MAC addresses, endpoint group membership                                           |
+| `session list/search`  | Active users, MAC addresses, NAS IPs, ISE server                                   |
+| `radius auth-log`      | Auth history: usernames, MACs, pass/fail, timestamps, policy matches               |
+| `radius troubleshoot`  | Full auth detail: all of auth-log plus protocol, TLS version, VLAN, identity store |
+| `radius failures`      | Failed auth attempts with usernames and failure reasons                            |
+| `internal-user list`   | Usernames, descriptions, user IDs                                                  |
+| `guest list`           | Guest usernames and IDs                                                            |
 
 **High sensitivity — contains secrets or enables write operations:**
 
-| Command | Data Exposed / Risk |
-|---------|-------------|
-| `network-device get` | **RADIUS shared secrets in plaintext**, device IPs, CoA ports |
-| `config show` | ISE hostname, admin username, masked password, sponsor username |
-| `internal-user get` | User details including email, group membership, enabled status |
-| `auth-profile get` | Full authorization profile config (VLANs, ACLs, attributes) |
-| `endpoint add/update/delete` | **Write operation** — modifies endpoint database |
+| Command                            | Data Exposed / Risk                                                 |
+| ---------------------------------- | ------------------------------------------------------------------- |
+| `network-device get`               | **RADIUS shared secrets in plaintext**, device IPs, CoA ports       |
+| `config show`                      | ISE hostname, admin username, masked password, sponsor username     |
+| `internal-user get`                | User details including email, group membership, enabled status      |
+| `auth-profile get`                 | Full authorization profile config (VLANs, ACLs, attributes)         |
+| `endpoint add/update/delete`       | **Write operation** — modifies endpoint database                    |
 | `network-device add/update/delete` | **Write operation** — modifies NAD database, exposes shared secrets |
-| `internal-user add/update/delete` | **Write operation** — creates/modifies/removes user accounts |
-| `guest create/delete` | **Write operation** — creates/removes guest accounts |
-| `session disconnect/reauth` | **Write operation** — disrupts active user sessions |
+| `internal-user add/update/delete`  | **Write operation** — creates/modifies/removes user accounts        |
+| `guest create/delete`              | **Write operation** — creates/removes guest accounts                |
+| `session disconnect/reauth`        | **Write operation** — disrupts active user sessions                 |
 
 ### Recommended Agent Scoping
 
 **Troubleshooting-only agent (most common):**
+
 - ISE role: ERS Operator + MNT Admin
 - Safe commands: `session list/search`, `radius auth-log`, `radius troubleshoot`, `endpoint list/search`, `identity-group list`, `deployment nodes`
 - Risk: exposes usernames, MACs, auth history — acceptable for helpdesk/NOC use
 
 **Read-all agent (full visibility):**
+
 - ISE role: ERS Operator + MNT Admin
 - All read commands including `network-device get` (exposes shared secrets)
 - Risk: shared secrets visible — use only if agent environment is trusted
 
 **Full access agent (not recommended for production):**
+
 - ISE role: ERS Admin
 - All commands including writes
 - Risk: agent can modify ISE configuration — use `--read-only` flag as a speed bump only

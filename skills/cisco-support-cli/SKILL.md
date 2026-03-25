@@ -18,9 +18,11 @@ CLI for querying Cisco Support APIs. Covers bugs, cases, EoX (end-of-life), PSIR
 npm install -g cisco-support
 
 # Configure credentials (from https://apidocs-prod.cisco.com/)
-cisco-support config add --client-id <your-id> --client-secret <your-secret>
+# Interactive prompt for client secret — never pass credentials on the command line
+cisco-support config add --client-id <your-id>
+# You will be prompted securely for the client secret
 
-# Or with Secret Server
+# Or with Secret Server (never hardcode credentials)
 cisco-support config add --client-id '<ss:22001:client-id>' --client-secret '<ss:22001:client-secret>'
 
 # Verify
@@ -114,23 +116,27 @@ cisco-support rma --serial FJC12345678
 ## Common Workflows
 
 ### Check if hardware is end-of-life
+
 ```bash
 cisco-support eox --pid WS-C3850-24T --format json
 cisco-support eox --serial FJC12345678
 ```
 
 ### Find known bugs for a software version
+
 ```bash
 cisco-support bug search --pid C9800-CL-K9 --release 17.9 --severity 1,2,3
 ```
 
 ### Security audit for a product
+
 ```bash
 cisco-support psirt --severity critical --year 2026
 cisco-support psirt --cve CVE-2026-1234
 ```
 
 ### Pre-upgrade research
+
 ```bash
 cisco-support software suggest --pid ISR4321
 cisco-support software compare --pid ISR4321 --from 17.6 --to 17.9
@@ -138,6 +144,7 @@ cisco-support bug search --pid ISR4321 --release 17.9 --status open
 ```
 
 ### Check warranty before RMA
+
 ```bash
 cisco-support serial warranty FJC12345678
 cisco-support rma --serial FJC12345678
