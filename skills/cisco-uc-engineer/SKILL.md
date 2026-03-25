@@ -1,6 +1,6 @@
 ---
 name: cisco-uc-engineer
-description: Cisco Unified Communications engineer skill. Orchestrates cisco-axl, cisco-dime, cisco-perfmon, cisco-risport, and cisco-support CLIs for troubleshooting, provisioning, monitoring, and lifecycle management of UC infrastructure. Use when working across multiple Cisco UC tools or diagnosing complex issues.
+description: Cisco Unified Communications engineer skill. Orchestrates cisco-axl, cisco-dime, cisco-perfmon, cisco-risport, cisco-support, cisco-ucce, cisco-yang, and audiocodes-cli CLIs for troubleshooting, provisioning, monitoring, and lifecycle management of UC infrastructure including AudioCodes SBCs. Use when working across multiple Cisco UC tools or diagnosing complex issues.
 license: MIT
 metadata:
   author: sieteunoseis
@@ -9,7 +9,7 @@ metadata:
 
 # Cisco UC Engineer
 
-Orchestration skill for Cisco Unified Communications. Connects cisco-axl, cisco-dime, cisco-perfmon, cisco-risport, and cisco-support to solve cross-domain UC problems.
+Orchestration skill for Unified Communications. Connects cisco-axl, cisco-dime, cisco-perfmon, cisco-risport, cisco-support, and audiocodes-cli to solve cross-domain UC problems across Cisco CUCM and AudioCodes SBCs.
 
 ## Tool Detection
 
@@ -22,6 +22,7 @@ cisco-dime --version 2>/dev/null && echo "cisco-dime: available" || echo "cisco-
 cisco-perfmon --version 2>/dev/null && echo "cisco-perfmon: available" || echo "cisco-perfmon: not installed"
 cisco-risport --version 2>/dev/null && echo "cisco-risport: available" || echo "cisco-risport: not installed"
 cisco-support --version 2>/dev/null && echo "cisco-support: available" || echo "cisco-support: not installed"
+audiocodes-cli --version 2>/dev/null && echo "audiocodes-cli: available" || echo "audiocodes-cli: not installed"
 ```
 
 Report what's available and what's missing. If a workflow requires a missing tool, tell the user:
@@ -32,17 +33,19 @@ Adapt workflows to use only the tools that are installed. A partial toolkit is s
 
 ## Available Tools
 
-| Tool | Purpose | npm Package | Skill |
-|---|---|---|---|
-| `cisco-axl` | CUCM configuration — phones, lines, route patterns, CSS, device pools, SIP trunks | `cisco-axl` | `cisco-axl-cli` |
-| `cisco-dime` | CUCM log collection — SIP traces, SDL, audit logs, service logs | `cisco-dime` | `cisco-dime-cli` |
-| `cisco-perfmon` | Real-time performance counters — CPU, memory, call stats | `cisco-perfmon` | `cisco-perfmon-cli` |
-| `cisco-risport` | Device registration status — phone reg, CTI, trunk status | `cisco-risport` | `cisco-risport-cli` |
-| `cisco-support` | Cisco Support APIs — bugs, EoX, PSIRT, software, serial coverage | `cisco-support` | `cisco-support-cli` |
+| Tool             | Purpose                                                                            | npm Package      | Skill               |
+| ---------------- | ---------------------------------------------------------------------------------- | ---------------- | ------------------- |
+| `cisco-axl`      | CUCM configuration — phones, lines, route patterns, CSS, device pools, SIP trunks  | `cisco-axl`      | `cisco-axl-cli`     |
+| `cisco-dime`     | CUCM log collection — SIP traces, SDL, audit logs, service logs                    | `cisco-dime`     | `cisco-dime-cli`    |
+| `cisco-perfmon`  | Real-time performance counters — CPU, memory, call stats                           | `cisco-perfmon`  | `cisco-perfmon-cli` |
+| `cisco-risport`  | Device registration status — phone reg, CTI, trunk status                          | `cisco-risport`  | `cisco-risport-cli` |
+| `cisco-support`  | Cisco Support APIs — bugs, EoX, PSIRT, software, serial coverage                   | `cisco-support`  | `cisco-support-cli` |
+| `audiocodes-cli` | AudioCodes Mediant VE SBC — call stats, alarms, KPIs, health checks, config backup | `audiocodes-cli` | `audiocodes-cli`    |
 
 Each tool has its own skill with detailed command reference. Use those skills for tool-specific questions. This skill is for workflows that span multiple tools.
 
 > Note: cisco-support uses separate Cisco API credentials (not CUCM credentials). It has its own config at `~/.cisco-support/config.json`.
+> Note: audiocodes-cli uses separate device credentials (not CUCM credentials). It has its own config at `~/.audiocodes-cli/config.json`.
 
 ## Cluster Alignment
 
@@ -57,10 +60,12 @@ cisco-risport config show 2>/dev/null
 ```
 
 **What to check:**
+
 - Do all tools have the same host configured?
 - Are the active clusters aligned (e.g., all pointing at "staging", not one at "staging" and another at "prod")?
 
 **If misaligned:**
+
 - Use `--cluster <name>` on each command to explicitly target the same cluster
 - Or switch the active cluster: `cisco-dime config use staging`
 - If a tool is missing the cluster entirely, add it:
@@ -90,6 +95,7 @@ cisco-dime select sip-traces --last 30m --download
 ```
 
 **What to look for:**
+
 - Device pool and CUCM group — is the phone pointing at the right server?
 - CSS — does the phone have a calling search space assigned?
 - SIP traces — look for 401/403 (auth issues), 503 (server unavailable), or no response
@@ -113,6 +119,7 @@ cisco-dime select sip-traces --last 1h --download
 ```
 
 **What to look for:**
+
 - Is the pattern in a partition that's in the calling CSS?
 - Route pattern → route list → route group → trunk — follow the chain
 - SIP traces show the actual INVITE routing and any redirects/rejects
@@ -136,6 +143,7 @@ cisco-dime select "Packet Capture Logs" --last 1h
 ```
 
 **What to look for:**
+
 - SDP in SIP traces — are both sides agreeing on codec and media IP?
 - One-way audio often means NAT/firewall issue — check the media IPs in SDP
 - MTP/transcoder insertion — look for MTP resources in the call flow
@@ -161,6 +169,7 @@ cisco-dime select syslog --last 1h
 ```
 
 **What to look for:**
+
 - CPU consistently above 80% — possible resource issue
 - RegisteredHardwarePhones dropping — phones losing registration
 - CallsActive spiking — possible call loop or toll fraud
@@ -200,6 +209,7 @@ cisco-support psirt --severity critical
 ```
 
 **What to look for:**
+
 - Error messages in syslog often contain Cisco bug IDs (CSCxx format)
 - Alarm names map to known bugs — search for the alarm name as a keyword
 - If a bug is found, check if it's fixed in a newer release
@@ -286,6 +296,57 @@ cisco-axl add Line --csv lines.csv
 
 # Verify all registered
 cisco-risport summary --model "Cisco 8841"
+```
+
+### SBC Troubleshooting (AudioCodes)
+
+**Tools needed:** audiocodes-cli, cisco-dime
+
+```bash
+# 1. Check SBC health
+audiocodes-cli doctor --device <sbc>
+
+# 2. Check active alarms (proxy sets down, IP groups blocked, cert expiry)
+audiocodes-cli alarms list --device <sbc>
+
+# 3. Check call statistics — are calls getting through?
+audiocodes-cli calls list --device <sbc>
+
+# 4. Check KPIs — license usage, DDoS stats, media quality
+audiocodes-cli kpi show system/licenseStats/global --device <sbc>
+audiocodes-cli kpi show network/ddosStats/global --device <sbc>
+
+# 5. Backup SBC config for review
+audiocodes-cli device backup --device <sbc>
+
+# 6. Cross-reference with CUCM SDL logs to trace calls end-to-end
+cisco-dime select "Cisco CallManager" --last 30m --all-nodes --include-active --download --decompress
+```
+
+**What to look for:**
+
+- IP Group blocked alarms — proxy set connectivity issues between SBC and CUCM/carrier
+- Call stats: attempted vs established — large gap means routing or far-end rejection
+- "No Answer" vs "Other Reason" — no answer is far-end, other reason is often 4xx/5xx from carrier
+- CUCM SDL logs show the SIP trunk name and response codes for calls leaving CUCM to the SBC
+
+### CUCM-to-SBC Call Flow Investigation
+
+**Tools needed:** audiocodes-cli, cisco-dime, cisco-axl
+
+```bash
+# 1. Check which SIP trunk CUCM uses for the route pattern
+cisco-axl sql query "SELECT dnorpattern, routePartitionName FROM numplan WHERE dnorpattern LIKE '%<pattern>%'"
+
+# 2. Pull CUCM call logs to see the INVITE flow
+cisco-dime select "Cisco CallManager" --last 30m --download --decompress
+# grep for the dialed number in calllogs
+
+# 3. Check the SBC side — did it receive the call?
+audiocodes-cli calls list --device <sbc>
+
+# 4. Check SBC alarms — is the outbound IP group healthy?
+audiocodes-cli alarms list --device <sbc>
 ```
 
 ## Diagnostic Decision Tree

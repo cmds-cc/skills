@@ -42,6 +42,12 @@ Individual CLI tool skills with detailed command reference.
 | ------------------------------------------------------ | ------------------------------------------------ | ------------------------------------------------------- | ----------------------------------------------------------------------------------- |
 | [ss-cli](https://skills.sh/sieteunoseis/ss-cli/ss-cli) | [ss-cli](https://github.com/sieteunoseis/ss-cli) | Delinea Secret Server — credential management, env sync | [![npm](https://img.shields.io/npm/v/ss-cli)](https://www.npmjs.com/package/ss-cli) |
 
+### Community
+
+| Skill | CLI Tool                                              | Description                                                | npm                                                                                                                 |
+| ----- | ----------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| —     | [webex-cli](https://github.com/Cloverhound/webex-cli) | Webex Calling — users, locations, numbers, auto-attendants | [![npm](https://img.shields.io/npm/v/@cloverhound/webex-cli)](https://www.npmjs.com/package/@cloverhound/webex-cli) |
+
 ## Installation
 
 Install the orchestrator (includes all skills in this repo):

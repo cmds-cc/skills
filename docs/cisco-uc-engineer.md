@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/automatebldrs)
 
-Cisco Unified Communications engineer skill for AI agents. Orchestrates [cisco-axl](https://github.com/sieteunoseis/cisco-axl), [cisco-dime](https://github.com/sieteunoseis/cisco-dime), [cisco-perfmon](https://github.com/sieteunoseis/cisco-perfmon), [cisco-risport](https://github.com/sieteunoseis/cisco-risport), and [cisco-support](https://github.com/sieteunoseis/cisco-support) for UC troubleshooting, provisioning, monitoring, and lifecycle management.
+Unified Communications engineer skill for AI agents. Orchestrates [cisco-axl](https://github.com/sieteunoseis/cisco-axl), [cisco-dime](https://github.com/sieteunoseis/cisco-dime), [cisco-perfmon](https://github.com/sieteunoseis/cisco-perfmon), [cisco-risport](https://github.com/sieteunoseis/cisco-risport), [cisco-support](https://github.com/sieteunoseis/cisco-support), and [audiocodes-cli](https://github.com/sieteunoseis/audiocodes-cli) for UC troubleshooting, provisioning, monitoring, and lifecycle management — including AudioCodes SBCs.
 
 ## What is this?
 
@@ -38,13 +38,20 @@ The skill auto-detects which CLI tools are installed and adapts workflows accord
 
 ## Available Tools
 
-| Tool | Purpose | npm |
-|---|---|---|
-| [cisco-axl](https://github.com/sieteunoseis/cisco-axl) | CUCM configuration — phones, lines, route patterns, CSS, SIP trunks | [![npm](https://img.shields.io/npm/v/cisco-axl)](https://www.npmjs.com/package/cisco-axl) |
-| [cisco-dime](https://github.com/sieteunoseis/cisco-dime) | CUCM log collection — SIP traces, SDL, audit logs | [![npm](https://img.shields.io/npm/v/cisco-dime)](https://www.npmjs.com/package/cisco-dime) |
-| [cisco-perfmon](https://github.com/sieteunoseis/cisco-perfmon) | Real-time performance counters — CPU, memory, call stats | [![npm](https://img.shields.io/npm/v/cisco-perfmon)](https://www.npmjs.com/package/cisco-perfmon) |
-| [cisco-risport](https://github.com/sieteunoseis/cisco-risport) | Device registration status — phone reg, CTI, trunk status | [![npm](https://img.shields.io/npm/v/cisco-risport)](https://www.npmjs.com/package/cisco-risport) |
-| [cisco-support](https://github.com/sieteunoseis/cisco-support) | Cisco Support APIs — bugs, EoX, PSIRT, software, warranty | [![npm](https://img.shields.io/npm/v/cisco-support)](https://www.npmjs.com/package/cisco-support) |
+| Tool                                                             | Purpose                                                             | npm                                                                                                 |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| [cisco-axl](https://github.com/sieteunoseis/cisco-axl)           | CUCM configuration — phones, lines, route patterns, CSS, SIP trunks | [![npm](https://img.shields.io/npm/v/cisco-axl)](https://www.npmjs.com/package/cisco-axl)           |
+| [cisco-dime](https://github.com/sieteunoseis/cisco-dime)         | CUCM log collection — SIP traces, SDL, audit logs                   | [![npm](https://img.shields.io/npm/v/cisco-dime)](https://www.npmjs.com/package/cisco-dime)         |
+| [cisco-perfmon](https://github.com/sieteunoseis/cisco-perfmon)   | Real-time performance counters — CPU, memory, call stats            | [![npm](https://img.shields.io/npm/v/cisco-perfmon)](https://www.npmjs.com/package/cisco-perfmon)   |
+| [cisco-risport](https://github.com/sieteunoseis/cisco-risport)   | Device registration status — phone reg, CTI, trunk status           | [![npm](https://img.shields.io/npm/v/cisco-risport)](https://www.npmjs.com/package/cisco-risport)   |
+| [cisco-support](https://github.com/sieteunoseis/cisco-support)   | Cisco Support APIs — bugs, EoX, PSIRT, software, warranty           | [![npm](https://img.shields.io/npm/v/cisco-support)](https://www.npmjs.com/package/cisco-support)   |
+| [audiocodes-cli](https://github.com/sieteunoseis/audiocodes-cli) | AudioCodes Mediant VE SBC — call stats, alarms, KPIs, health checks | [![npm](https://img.shields.io/npm/v/audiocodes-cli)](https://www.npmjs.com/package/audiocodes-cli) |
+
+### Community Tools
+
+| Tool                                                  | Purpose                                                    | npm                                                                                                                 |
+| ----------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| [webex-cli](https://github.com/Cloverhound/webex-cli) | Webex Calling — users, locations, numbers, auto-attendants | [![npm](https://img.shields.io/npm/v/@cloverhound/webex-cli)](https://www.npmjs.com/package/@cloverhound/webex-cli) |
 
 ## Troubleshooting Workflows
 
@@ -103,15 +110,16 @@ Start broad, narrow down. Don't pull traces until you've checked the basics.
 
 ## Related Skills
 
-| Skill | Description |
-|---|---|
-| [cisco-axl-cli](https://skills.sh/sieteunoseis/cisco-axl/cisco-axl-cli) | Detailed cisco-axl command reference |
-| [cisco-dime-cli](https://skills.sh/sieteunoseis/cisco-dime/cisco-dime-cli) | Detailed cisco-dime command reference |
-| [cisco-perfmon-cli](https://skills.sh/sieteunoseis/cisco-perfmon/cisco-perfmon-cli) | Detailed cisco-perfmon command reference |
-| [cisco-risport-cli](https://skills.sh/sieteunoseis/cisco-risport/cisco-risport-cli) | Detailed cisco-risport command reference |
-| [cisco-support-cli](https://skills.sh/sieteunoseis/cisco-support/cisco-support-cli) | Cisco Support APIs — bugs, EoX, PSIRT |
-| [cisco-ise-cli](https://skills.sh/sieteunoseis/cisco-ise/cisco-ise-cli) | Cisco ISE endpoint & session management |
-| [ss-cli](https://skills.sh/sieteunoseis/ss-cli/ss-cli) | Delinea Secret Server credential management |
+| Skill                                                                               | Description                                 |
+| ----------------------------------------------------------------------------------- | ------------------------------------------- |
+| [cisco-axl-cli](https://skills.sh/sieteunoseis/cisco-axl/cisco-axl-cli)             | Detailed cisco-axl command reference        |
+| [cisco-dime-cli](https://skills.sh/sieteunoseis/cisco-dime/cisco-dime-cli)          | Detailed cisco-dime command reference       |
+| [cisco-perfmon-cli](https://skills.sh/sieteunoseis/cisco-perfmon/cisco-perfmon-cli) | Detailed cisco-perfmon command reference    |
+| [cisco-risport-cli](https://skills.sh/sieteunoseis/cisco-risport/cisco-risport-cli) | Detailed cisco-risport command reference    |
+| [cisco-support-cli](https://skills.sh/sieteunoseis/cisco-support/cisco-support-cli) | Cisco Support APIs — bugs, EoX, PSIRT       |
+| [cisco-ise-cli](https://skills.sh/sieteunoseis/cisco-ise/cisco-ise-cli)             | Cisco ISE endpoint & session management     |
+| [ss-cli](https://skills.sh/sieteunoseis/ss-cli/ss-cli)                              | Delinea Secret Server credential management |
+| [audiocodes-cli](https://skills.sh/sieteunoseis/audiocodes-cli/audiocodes-cli)      | AudioCodes Mediant VE SBC command reference |
 
 ## Funding
 
