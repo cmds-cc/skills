@@ -70,7 +70,7 @@ cisco-risport config show 2>/dev/null
 - Or switch the active cluster: `cisco-dime config use staging`
 - If a tool is missing the cluster entirely, add it:
   ```bash
-  cisco-dime config add staging --host 10.0.0.1 --username admin --password secret --insecure
+  cisco-dime config add staging --host 10.0.0.1 --username admin --password "$CUCM_PASSWORD" --insecure
   ```
 
 **Best practice:** When the user says "check phone X", always confirm which cluster/environment before running commands across multiple tools. Use the explicit `--cluster` flag in multi-tool workflows rather than relying on each tool's active cluster.

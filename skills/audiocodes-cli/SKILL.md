@@ -94,8 +94,8 @@ Note: SIP trace endpoints are pending validation against the AudioCodes REST API
 ### Device configuration management
 
 ```bash
-audiocodes-cli config add lab-ve --host 10.0.0.50 --username Admin --password Admin --insecure
-audiocodes-cli config add prod-sbc --host 10.0.0.100 --username Admin --password Admin
+audiocodes-cli config add lab-ve --host 10.0.0.50 --username Admin --password "$AUDIOCODES_PASSWORD" --insecure
+audiocodes-cli config add prod-sbc --host 10.0.0.100 --username Admin --password "$AUDIOCODES_PASSWORD"
 audiocodes-cli config use prod-sbc
 audiocodes-cli config list
 audiocodes-cli config show           # masks passwords
@@ -106,8 +106,8 @@ audiocodes-cli config test           # test connectivity to active device
 ### Multiple Devices
 
 ```bash
-audiocodes-cli config add lab --host 10.0.0.50 --username Admin --password Admin --insecure
-audiocodes-cli config add prod --host 10.0.0.100 --username Admin --password Admin
+audiocodes-cli config add lab --host 10.0.0.50 --username Admin --password "$AUDIOCODES_PASSWORD" --insecure
+audiocodes-cli config add prod --host 10.0.0.100 --username Admin --password "$AUDIOCODES_PASSWORD"
 audiocodes-cli config use prod
 audiocodes-cli calls list --device lab    # override per-command
 ```
