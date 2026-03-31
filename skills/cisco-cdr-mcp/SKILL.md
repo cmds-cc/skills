@@ -20,7 +20,7 @@ The MCP server runs as part of the cisco-cdr-processor service. It must be runni
 Add the cisco-cdr server to Claude Code:
 
 ```bash
-claude mcp add --transport http cisco-cdr https://cdr-backend.tuce.ohsu.edu/mcp
+claude mcp add -s user --transport http cisco-cdr https://cdr-backend.tuce.ohsu.edu/mcp
 ```
 
 Or manually add to your MCP configuration:
