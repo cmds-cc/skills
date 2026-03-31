@@ -17,20 +17,24 @@ The MCP server runs as part of the cisco-cdr-processor service. It must be runni
 
 ### Adding the MCP Server
 
-Add the cisco-cdr server to your Claude Code MCP configuration:
+Add the cisco-cdr server to Claude Code:
+
+```bash
+claude mcp add --transport http cisco-cdr https://cdr-backend.tuce.ohsu.edu/mcp
+```
+
+Or manually add to your MCP configuration:
 
 ```json
 {
   "mcpServers": {
     "cisco-cdr": {
       "type": "url",
-      "url": "http://localhost:3000/mcp"
+      "url": "https://cdr-backend.tuce.ohsu.edu/mcp"
     }
   }
 }
 ```
-
-Adjust the host/port if the processor is running on a different machine or port (`MCP_PORT` env var, default 3000).
 
 ### Verifying Connectivity
 
