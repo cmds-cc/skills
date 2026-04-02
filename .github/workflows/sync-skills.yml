@@ -57,7 +57,7 @@ jobs:
           echo "CHANGED=${CHANGED}" >> $GITHUB_ENV
           echo "${CHANGED} skill(s) updated"
 
-      - name: Create PR if changes found
+      - name: Create and merge PR if changes found
         if: env.CHANGED != '0'
         run: |
           git config user.name "github-actions[bot]"
@@ -67,9 +67,7 @@ jobs:
           git add skills/
           git commit -m "chore: sync skills from source repos"
           git push origin "${BRANCH}"
-          gh pr create \
-            --title "Sync skills from source repos" \
-            --body "Automated weekly sync of SKILL.md files from source repositories." \
-            --base master
+          PR_URL=$(gh pr create             --title "Sync skills from source repos"             --body "Automated weekly sync of SKILL.md files from source repositories."             --base master)
+          gh pr merge "$PR_URL" --squash --delete-branch
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
