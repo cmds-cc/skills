@@ -66,15 +66,15 @@ Individual CLI tool skills with detailed command reference.
 Install the orchestrator (includes all skills in this repo):
 
 ```bash
-npx @cmds-cc/skills add cmds-cc/skills
+npx skills add cmds-cc/skills
 ```
 
 Or install individual skills from their source repos:
 
 ```bash
-npx @cmds-cc/skills add sieteunoseis/cisco-axl          # cisco-axl-cli skill
-npx @cmds-cc/skills add sieteunoseis/audiocodes-cli     # audiocodes-cli skill
-npx @cmds-cc/skills add sieteunoseis/cisco-support      # cisco-support-cli skill
+npx skills add sieteunoseis/cisco-axl          # cisco-axl-cli skill
+npx skills add sieteunoseis/audiocodes-cli     # audiocodes-cli skill
+npx skills add sieteunoseis/cisco-support      # cisco-support-cli skill
 ```
 
 Install hooks (optional safety enforcement):
