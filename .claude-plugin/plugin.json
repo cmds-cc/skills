@@ -1,13 +1,13 @@
 {
-  "name": "skills.automate.builders",
+  "name": "cmds-cc/skills",
   "description": "AI agent skills for voice, UC, and telecom infrastructure — orchestrators and CLI tool skills for AudioCodes SBCs, Cisco CUCM, UCCE, ISE, IOS-XE voice gateways, and credential management",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "author": {
     "name": "Jeremy Worden",
     "url": "https://github.com/sieteunoseis"
   },
-  "homepage": "https://github.com/sieteunoseis/skills.automate.builders#readme",
-  "repository": "https://github.com/sieteunoseis/skills.automate.builders",
+  "homepage": "https://github.com/cmds-cc/skills#readme",
+  "repository": "https://github.com/cmds-cc/skills",
   "license": "MIT",
   "keywords": [
     "cisco",
