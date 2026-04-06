@@ -1,0 +1,108 @@
+[
+  {
+    "name": "cisco-uc-engineer",
+    "description": "Orchestrates all Cisco UC CLI tools for troubleshooting, provisioning, and monitoring",
+    "author": "sieteunoseis",
+    "tag": "orchestrator"
+  },
+  {
+    "name": "cisco-axl-cli",
+    "description": "Manage CUCM via AXL — phones, lines, route patterns, SIP profiles, SQL queries",
+    "author": "sieteunoseis"
+  },
+  {
+    "name": "cisco-ise-cli",
+    "description": "Manage Cisco ISE — endpoints, guests, network devices, RADIUS/TACACS",
+    "author": "sieteunoseis"
+  },
+  {
+    "name": "cisco-yang-cli",
+    "description": "Manage IOS-XE devices via RESTCONF — voice troubleshooting, dial-peers, SIP trace",
+    "author": "sieteunoseis"
+  },
+  {
+    "name": "cisco-risport-cli",
+    "description": "Query CUCM real-time device registration — phone status, SIP trunk health",
+    "author": "sieteunoseis"
+  },
+  {
+    "name": "cisco-perfmon-cli",
+    "description": "Collect CUCM performance counters — CPU, memory, call stats, sparklines",
+    "author": "sieteunoseis"
+  },
+  {
+    "name": "cisco-dime-cli",
+    "description": "Manage CUCM log files — selecting, downloading service logs via DIME",
+    "author": "sieteunoseis"
+  },
+  {
+    "name": "cisco-cdr-mcp",
+    "description": "Query CUCM call detail records via MCP — CDR search, call tracing, quality stats",
+    "author": "sieteunoseis"
+  },
+  {
+    "name": "cisco-support-cli",
+    "description": "Query Cisco Support APIs — bug search, EoL dates, PSIRT advisories, RMA tracking",
+    "author": "sieteunoseis"
+  },
+  {
+    "name": "cisco-ucce-cli",
+    "description": "Monitor Cisco UCCE — agent states, queue stats, PG diagnostics, system health",
+    "author": "sieteunoseis"
+  },
+  {
+    "name": "audiocodes-cli",
+    "description": "Troubleshoot VoIP on AudioCodes SBCs — call stats, alarms, SIP trace",
+    "author": "sieteunoseis"
+  },
+  {
+    "name": "genesys-cli",
+    "description": "Query Genesys Cloud — agent states, queue stats, routing diagnostics",
+    "author": "sieteunoseis"
+  },
+  {
+    "name": "ss-cli",
+    "description": "Manage secrets from Delinea Secret Server — credentials, env sync, password rotation",
+    "author": "sieteunoseis"
+  },
+  {
+    "name": "wmill-safety",
+    "description": "Windmill CLI safety guard — risk tiers, pre-flight checklists, destructive operation protection",
+    "author": "sieteunoseis"
+  },
+  {
+    "name": "wmill-commit",
+    "description": "Git commits with conventional commit format for Windmill development",
+    "author": "windmill-labs"
+  },
+  {
+    "name": "wmill-review",
+    "description": "Code review PRs for bugs and CLAUDE.md compliance in Windmill repos",
+    "author": "windmill-labs"
+  },
+  {
+    "name": "wmill-pr",
+    "description": "Open draft pull requests with conventional commit titles for Windmill repos",
+    "author": "windmill-labs"
+  },
+  {
+    "name": "wmill-refine",
+    "description": "End-of-session reflection — update docs with lessons learned",
+    "author": "windmill-labs"
+  },
+  {
+    "name": "wmill-native-trigger",
+    "description": "Guide for adding native trigger services to Windmill (backend + frontend)",
+    "author": "windmill-labs"
+  },
+  {
+    "name": "wmill-rust-backend",
+    "description": "Rust coding guidelines for the Windmill backend",
+    "author": "windmill-labs"
+  },
+  {
+    "name": "wmill-svelte-frontend",
+    "description": "Svelte coding guidelines for the Windmill frontend",
+    "author": "windmill-labs"
+  }
+]
