@@ -1,6 +1,6 @@
 ---
 name: cisco-uc-engineer
-description: Cisco Unified Communications engineer skill. Orchestrates cisco-axl, cisco-dime, cisco-perfmon, cisco-risport, cisco-support, cisco-ucce, cisco-yang, audiocodes-cli, genesys-cli CLIs, and the cisco-cdr MCP server for troubleshooting, provisioning, monitoring, CDR analysis, and lifecycle management of UC infrastructure including AudioCodes SBCs and Genesys Cloud CX. Use when working across multiple Cisco UC tools or diagnosing complex issues.
+description: Cisco Unified Communications engineer skill. Orchestrates cisco-axl, cisco-dime, cisco-perfmon, cisco-risport, cisco-support, cisco-ucce, cisco-yang, audiocodes-cli, genesys-cli CLIs, and the cisco-cdr and cucm-avail MCP servers for troubleshooting, provisioning, monitoring, CDR analysis, and lifecycle management of UC infrastructure including AudioCodes SBCs and Genesys Cloud CX. Use when working across multiple Cisco UC tools or diagnosing complex issues.
 license: MIT
 metadata:
   author: sieteunoseis
@@ -9,7 +9,7 @@ metadata:
 
 # Cisco UC Engineer
 
-Orchestration skill for Unified Communications. Connects cisco-axl, cisco-dime, cisco-perfmon, cisco-risport, cisco-support, audiocodes-cli, genesys-cli, and the cisco-cdr MCP server to solve cross-domain UC problems across Cisco CUCM, AudioCodes SBCs, and Genesys Cloud CX.
+Orchestration skill for Unified Communications. Connects cisco-axl, cisco-dime, cisco-perfmon, cisco-risport, cisco-support, audiocodes-cli, genesys-cli, and the cisco-cdr and cucm-avail MCP servers to solve cross-domain UC problems across Cisco CUCM, AudioCodes SBCs, and Genesys Cloud CX.
 
 ## Tool Detection
 
@@ -27,6 +27,9 @@ genesys-cli --version 2>/dev/null && echo "genesys-cli: available" || echo "gene
 
 # Check cisco-cdr MCP server (requires MCP configuration, not a CLI tool)
 # Verify by calling: cdr_health
+
+# Check cucm-avail MCP server (requires MCP configuration, not a CLI tool)
+# Verify by calling: cucm_servers
 ```
 
 Report what's available and what's missing. If a workflow requires a missing tool, tell the user:
@@ -47,6 +50,7 @@ Adapt workflows to use only the tools that are installed. A partial toolkit is s
 | `audiocodes-cli`  | AudioCodes Mediant VE SBC — call stats, alarms, KPIs, health checks, config backup | `audiocodes-cli`      | `audiocodes-cli`    |
 | `genesys-cli`     | Genesys Cloud CX — conversations, BYOC trunks, queues, agents, edges, audit        | `genesys-cli`         | `genesys-cli`       |
 | `cisco-cdr` (MCP) | CDR/CMR analysis — call search, call trace, quality analysis, statistics, health   | `cisco-cdr-processor` | `cisco-cdr-mcp`     |
+| `cucm-avail` (MCP) | Outage/upgrade planning — failover simulation, CMG/AG safety, upgrade order, CER 911 subnet coverage | `CUCM-AVAIL` (Docker) | `cucm-avail-mcp` |
 
 Each tool has its own skill with detailed command reference. Use those skills for tool-specific questions. This skill is for workflows that span multiple tools.
 
@@ -54,6 +58,7 @@ Each tool has its own skill with detailed command reference. Use those skills fo
 > Note: audiocodes-cli uses separate device credentials (not CUCM credentials). It has its own config at `~/.audiocodes-cli/config.json`.
 > Note: genesys-cli uses Genesys Cloud OAuth client credentials (not CUCM credentials). It has its own config at `~/.genesys-cli/config.json`.
 > Note: cisco-cdr is an MCP server (not a CLI tool). It requires the cisco-cdr-processor service running with PostgreSQL. Configure the MCP endpoint in your Claude Code MCP settings.
+> Note: cucm-avail is an MCP server (not a CLI tool) built into the CUCM-AVAIL app. Read tools are always on; sync/import tools need the server's `MCP_API_KEY`. Its data is only as fresh as the app's last AXL sync / RISPort poll.
 
 ## Cluster Alignment
 
@@ -272,7 +277,7 @@ cisco-support psirt --severity critical
 
 ### Pre-Upgrade Research
 
-**Tools needed:** cisco-support, cisco-axl
+**Tools needed:** cisco-support, cisco-axl (cucm-avail MCP for the outage plan, if available)
 
 ```bash
 # 1. Check current CUCM version
@@ -290,6 +295,30 @@ cisco-support psirt --severity critical --year 2026
 # 5. Check if any hardware is end-of-life
 cisco-support eox --pid CP-8841-K9
 cisco-support serial warranty FJC12345678
+```
+
+If the cucm-avail MCP server is available, plan the reboot order and confirm no phone loses service:
+
+```
+cucm_upgrade_plan                                # recommended node order with phone impact per step
+cucm_simulate_outage servers=["<node>"]          # unregistered must be 0 for a clean step
+cucm_registration_summary                        # phones already off their primary before you start
+```
+
+### Planned Outage / Maintenance Window
+
+**Tools needed:** cucm-avail (MCP), cisco-risport
+
+```
+# 1. What breaks if these nodes go down?
+cucm_simulate_outage servers=["dcrsub05","dcrsub06"]
+# 2. Are side A/B CM groups independent? (no shared servers)
+cucm_cm_groups
+```
+
+```bash
+# 3. During the window, confirm nothing is still registered to the node you took down
+cisco-risport query --node <down-node> --status Registered
 ```
 
 ### Hardware Lifecycle Check
@@ -502,6 +531,7 @@ When the user reports a problem, follow this order:
 8. **Is the hardware end-of-life?** → `cisco-support eox --pid <model>`
 9. **Did the call reach Genesys?** → `genesys-cli conversations list --caller <number> --last 1h`
 10. **Is the BYOC trunk healthy?** → `genesys-cli trunks list`
+11. **Will a server outage take it down?** → `cucm_simulate_outage servers=["<node>"]` / `cucm_phone_status name="<device>"` (if cucm-avail MCP is available)
 
 Start broad, narrow down. Don't pull traces until you've checked the basics. If the cisco-cdr MCP server is available, CDR search is a fast way to confirm whether a call happened and what the outcome was before diving into logs.
 

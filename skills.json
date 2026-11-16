@@ -44,6 +44,11 @@
     "author": "sieteunoseis"
   },
   {
+    "name": "cucm-avail-mcp",
+    "description": "Plan CUCM outages and upgrades via MCP — failover simulation, CM group safety, CER 911 subnet coverage",
+    "author": "sieteunoseis"
+  },
+  {
     "name": "cisco-support-cli",
     "description": "Query Cisco Support APIs — bug search, EoL dates, PSIRT advisories, RMA tracking",
     "author": "sieteunoseis"

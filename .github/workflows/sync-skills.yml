@@ -29,6 +29,7 @@ jobs:
             ["cisco-yang-cli"]="sieteunoseis/cisco-yang/main/skills/cisco-yang-cli/SKILL.md"
             ["ss-cli"]="sieteunoseis/ss-cli/main/skills/ss-cli/SKILL.md"
             ["audiocodes-cli"]="sieteunoseis/audiocodes-cli/main/skills/audiocodes-cli/SKILL.md"
+            ["cucm-avail-mcp"]="sieteunoseis/CUCM-AVAIL/main/skills/cucm-avail-mcp/SKILL.md"
           )
 
           CHANGED=0
